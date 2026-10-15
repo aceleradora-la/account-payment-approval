@@ -32,12 +32,14 @@ Detalles:
 
 ## Dónde se aprueba
 
+- **Contabilidad > Proveedores > Pagos por aprobar**: las facturas que le toca aprobar al usuario
+  (filtro *Pendientes de mi aprobación*). Con el filtro *Aprobados por mí* se ve el historial.
 - **Ícono de aprobaciones de la barra superior** (de `base_tier_validation`): pendientes del
   usuario por tipo de documento.
-- **Contabilidad > Proveedores > Facturas**, filtro *Pendientes de mi aprobación*. Columnas
-  *Aprobador del pago* y *Aprobación del pago*.
-- **Expedientes > Mis aprobaciones > Validaciones** (si está instalado `expedient_tier_validation`),
-  filtro *Facturas de proveedor*.
+- **Contabilidad > Proveedores > Facturas**: mismos filtros, más *Pago en aprobación*, *Pago
+  rechazado* y *Pago bloqueado*, y las columnas *Aprobador del pago* y *Aprobación del pago*.
+- En instalaciones con Expedientes, también en **Expedientes > Mis aprobaciones > Validaciones**
+  (filtro *Facturas de proveedor*), que junta todas las aprobaciones de la fundación.
 
 **Aprobación masiva:** seleccionar facturas (o validaciones) en la lista → *Acciones* →
 **Aprobar pago** / **Aprobar pagos de facturas**. Aprueba solo las que le tocan al usuario; las

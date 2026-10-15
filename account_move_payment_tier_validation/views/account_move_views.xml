@@ -44,6 +44,8 @@
                 <separator/>
                 <filter name="payment_approval_mine" string="Pendientes de mi aprobación"
                         domain="[('can_review', '=', True)]"/>
+                <filter name="payment_approval_done_mine" string="Aprobados por mí"
+                        domain="[('review_ids', 'any', [('done_by', '=', uid), ('status', '=', 'approved')])]"/>
                 <filter name="payment_approval_pending" string="Pago en aprobación"
                         domain="[('validation_status', 'in', ('waiting', 'pending'))]"/>
                 <filter name="payment_approval_rejected" string="Pago rechazado"

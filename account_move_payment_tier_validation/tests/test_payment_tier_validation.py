@@ -3,6 +3,7 @@
 
 from odoo.exceptions import UserError
 from odoo.tests import new_test_user, tagged
+from odoo.tools.safe_eval import safe_eval
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
@@ -135,6 +136,31 @@ class TestPaymentTierValidation(AccountTestInvoicingCommon):
         if payable:
             payable.reconcile()
         self.assertEqual(bill.amount_residual, 0.0)
+
+    def test_payment_approval_inbox(self):
+        bill = self._bill()
+        other_bill = self._bill(partner=self.partner_b)
+        action = self.env.ref(
+            "account_move_payment_tier_validation.action_vendor_bill_payment_approval"
+        )
+        Move = self.env["account.move"].with_user(self.approver)
+        mine = Move.search(
+            safe_eval(action.domain) + [("can_review", "=", True)]
+        )
+        self.assertIn(bill, mine)
+        self.assertNotIn(other_bill, mine)
+        bill.with_user(self.approver).validate_tier()
+        done_mine = Move.search(
+            [
+                (
+                    "review_ids",
+                    "any",
+                    [("done_by", "=", self.approver.id), ("status", "=", "approved")],
+                )
+            ]
+        )
+        self.assertEqual(done_mine, bill)
+        self.assertNotIn(bill, Move.search([("can_review", "=", True)]))
 
     def test_manual_block_is_enforced(self):
         bill = self._bill(partner=self.partner_b)
