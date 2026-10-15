@@ -77,9 +77,26 @@ class AccountMove(models.Model):
     # ------------------------------------------------------------------
 
     def _post(self, soft=True):
+        self._payment_approval_fill_approver()
         posted = super()._post(soft=soft)
         posted._payment_approval_request()
         return posted
+
+    def _payment_approval_fill_approver(self):
+        """Tomar el aprobador del proveedor al confirmar, si la factura no tiene.
+
+        El aprobador se calcula al elegir el proveedor: un borrador cargado
+        antes de definirle aprobador al proveedor quedaría sin aprobación.
+        """
+        for move in self.filtered(
+            lambda m: not m.payment_approver_id
+            and m.is_purchase_document(include_receipts=True)
+        ):
+            partner = move.partner_id.commercial_partner_id.with_company(
+                move.company_id
+            )
+            if partner.payment_approver_id:
+                move.payment_approver_id = partner.payment_approver_id
 
     def _payment_approval_request(self):
         """Pedir la aprobación de las facturas recién confirmadas que la requieren."""
@@ -161,6 +178,37 @@ class AccountMove(models.Model):
             {"payment_approval_blocked": False}
         )
         return res
+
+    def restart_validation(self):
+        """Reiniciar vuelve a pedir la aprobación en el acto.
+
+        Sin esto la factura quedaba con el pago bloqueado y sin nadie que la
+        apruebe hasta que alguien tocara «Solicitar validación». Si ya estaba
+        aprobada, se vuelve a bloquear. Solo para administradores de
+        contabilidad: reiniciar descarta lo aprobado o rechazado.
+        """
+        if not self.env.su and not self.env.user.has_group(
+            "account.group_account_manager"
+        ):
+            raise UserError(
+                self.env._(
+                    "Solo un administrador de contabilidad puede reiniciar la "
+                    "aprobación del pago."
+                )
+            )
+        restarted = self.filtered("review_ids")
+        res = super().restart_validation()
+        restarted._payment_approval_request()
+        return res
+
+    def _add_tier_validation_buttons(self, node, params):
+        # Los botones se inyectan después de que Odoo filtra los `groups` de la
+        # vista: el atributo no tendría efecto, se saca el botón a mano.
+        new_node = super()._add_tier_validation_buttons(node, params)
+        if not self.env.user.has_group("account.group_account_manager"):
+            for button in new_node.xpath("//button[@name='restart_validation']"):
+                button.getparent().remove(button)
+        return new_node
 
     def button_draft(self):
         res = super().button_draft()

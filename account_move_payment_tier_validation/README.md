@@ -10,8 +10,11 @@ de los expedientes.
 1. En el proveedor (pestaña *Ventas y compras*, sección *Compra*) se carga el **Aprobador de
    pagos**. Es por compañía.
 2. La factura toma ese aprobador (campo **Aprobador del pago**, editable mientras está en borrador).
-3. Al **confirmar**, la factura se contabiliza normalmente (entra al Libro IVA Compras en su fecha
-   contable), se pide la aprobación y el pago queda **Bloqueado** (el bloqueo nativo de Odoo).
+   Si al confirmar la factura no tiene aprobador (por ejemplo, un borrador cargado antes de
+   definirlo en el proveedor), lo toma del proveedor en ese momento.
+3. Al **confirmar**, si la factura tiene aprobador, se contabiliza normalmente (entra al Libro IVA
+   Compras en su fecha contable), se pide la aprobación automáticamente y el pago queda
+   **Bloqueado** (el bloqueo nativo de Odoo).
 4. Cuando el aprobador aprueba, el pago se desbloquea solo. Si rechaza, sigue bloqueado.
 
 Mientras el pago está bloqueado no se puede pagar por ningún camino: botón *Pagar*, pago desde la
@@ -22,13 +25,18 @@ Detalles:
 - Volver la factura a borrador borra la aprobación y el bloqueo; al confirmarla de nuevo se pide
   otra vez.
 - Con la aprobación en curso (o ya aprobada) no se pueden cambiar proveedor, cuenta bancaria,
-  aprobador, referencia de pago, moneda, plazos ni líneas. Para eso hay que *Reiniciar validación*
-  o volver a borrador.
+  aprobador, referencia de pago, moneda, plazos ni líneas. Para eso hay que volver a borrador.
+- **Reiniciar validación** (solo administradores de contabilidad) descarta lo aprobado o rechazado
+  y vuelve a pedir la aprobación en el acto: el pago queda bloqueado hasta la nueva aprobación.
 - El desbloqueo manual (botón nativo) no levanta un bloqueo de aprobación pendiente o rechazada.
 - Un bloqueo puesto a mano por un usuario también impide pagar (Odoo 18 solo ocultaba el botón).
-- Las facturas de proveedores sin aprobador no se bloquean.
-- Las facturas confirmadas antes de instalar el módulo no se bloquean; desde la factura se puede
-  *Solicitar validación*.
+- Las facturas sin aprobador al confirmar no se bloquean.
+- **Solicitar validación** aparece solo si la factura confirmada tiene aprobador y no tiene una
+  aprobación en curso: facturas confirmadas antes de instalar el módulo, o a las que se les cargó
+  el aprobador a mano después de confirmar. Hasta que se pide, el pago no se bloquea; al pedirla,
+  se bloquea.
+- Si una factura quedó bloqueada por aprobación sin una aprobación en curso, el formulario lo
+  avisa y explica qué falta.
 
 ## Dónde se aprueba
 

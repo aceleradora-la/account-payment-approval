@@ -162,6 +162,71 @@ class TestPaymentTierValidation(AccountTestInvoicingCommon):
         self.assertEqual(done_mine, bill)
         self.assertNotIn(bill, Move.search([("can_review", "=", True)]))
 
+    def test_draft_before_partner_approver_takes_it_on_post(self):
+        # Borrador cargado antes de que el proveedor tuviera aprobador.
+        bill = self._bill(partner=self.partner_b, post=False)
+        self.assertFalse(bill.payment_approver_id)
+        self.partner_b.payment_approver_id = self.approver
+        bill.action_post()
+        self.assertEqual(bill.payment_approver_id, self.approver)
+        self.assertEqual(bill.validation_status, "pending")
+        self.assertEqual(bill.payment_state, "blocked")
+
+    def test_approver_set_after_post_waits_for_request(self):
+        bill = self._bill(partner=self.partner_b)
+        self.assertFalse(bill.need_validation)
+        bill.payment_approver_id = self.approver
+        # need_validation no tiene dependencias: el formulario lo recalcula al
+        # recargar; acá se invalida a mano.
+        bill.invalidate_recordset(["need_validation"])
+        # Cargado a mano después de confirmar: no bloquea hasta pedir la validación.
+        self.assertTrue(bill.need_validation)
+        self.assertEqual(bill.payment_state, "not_paid")
+        bill.request_validation()
+        self.assertEqual(bill.validation_status, "pending")
+        self.assertEqual(bill.payment_state, "blocked")
+        self.assertTrue(bill.payment_approval_blocked)
+
+    def test_restart_requests_again_and_keeps_blocked(self):
+        bill = self._bill()
+        old_reviews = bill.review_ids
+        bill.restart_validation()
+        self.assertFalse(old_reviews.exists())
+        self.assertTrue(bill.review_ids)
+        self.assertEqual(bill.validation_status, "pending")
+        self.assertEqual(bill.payment_state, "blocked")
+        self.assertFalse(bill.need_validation)
+
+    def test_restart_after_approval_blocks_again(self):
+        bill = self._bill()
+        bill.with_user(self.approver).validate_tier()
+        self.assertEqual(bill.payment_state, "not_paid")
+        bill.restart_validation()
+        self.assertEqual(bill.validation_status, "pending")
+        self.assertEqual(bill.payment_state, "blocked")
+        self.assertTrue(bill.payment_approval_blocked)
+
+    def test_restart_only_for_accounting_managers(self):
+        bill = self._bill()
+        with self.assertRaises(UserError):
+            bill.with_user(self.approver).restart_validation()
+        self.assertEqual(bill.validation_status, "pending")
+        arch = (
+            self.env["account.move"]
+            .with_user(self.approver)
+            .get_view(self.env.ref("account.view_move_form").id, "form")["arch"]
+        )
+        if isinstance(arch, bytes):
+            arch = arch.decode()
+        self.assertNotIn('name="restart_validation"', arch)
+        self.assertIn("payment_approval_blocked", arch)
+        manager_arch = self.env["account.move"].get_view(
+            self.env.ref("account.view_move_form").id, "form"
+        )["arch"]
+        if isinstance(manager_arch, bytes):
+            manager_arch = manager_arch.decode()
+        self.assertIn('name="restart_validation"', manager_arch)
+
     def test_manual_block_is_enforced(self):
         bill = self._bill(partner=self.partner_b)
         bill.action_toggle_block_payment()

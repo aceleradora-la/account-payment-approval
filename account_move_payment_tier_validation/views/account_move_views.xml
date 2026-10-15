@@ -6,6 +6,16 @@
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <field name="payment_approval_blocked" invisible="1"/>
+                <field name="review_ids" invisible="1"/>
+                <div class="alert alert-warning mb-0" role="alert"
+                     invisible="not payment_approval_blocked or review_ids">
+                    El pago está bloqueado por aprobación, pero no hay una aprobación
+                    en curso. Cargue el <b>Aprobador del pago</b> y use
+                    <b>Solicitar validación</b>.
+                </div>
+            </xpath>
             <xpath expr="(//field[@name='partner_bank_id'])[1]" position="after">
                 <field name="payment_approver_id"
                        options="{'no_create': True}"
