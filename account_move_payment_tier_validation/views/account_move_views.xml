@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_move_form_payment_approver" model="ir.ui.view">
+        <field name="name">account.move.form.payment.approver</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="(//field[@name='partner_bank_id'])[1]" position="after">
+                <field name="payment_approver_id"
+                       options="{'no_create': True}"
+                       readonly="validation_status not in ('no', False)"
+                       invisible="move_type not in ('in_invoice', 'in_receipt')"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_invoice_tree_payment_approval" model="ir.ui.view">
+        <field name="name">account.move.list.payment.approval</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="(//field[@name='invoice_partner_display_name'])[1]" position="after">
+                <field name="payment_approver_id" optional="show"
+                       widget="many2one_avatar_user"
+                       column_invisible="context.get('default_move_type') not in ('in_invoice', 'in_receipt')"/>
+                <field name="validation_status" string="Aprobación del pago" optional="show"
+                       widget="badge"
+                       decoration-info="validation_status in ('waiting', 'pending')"
+                       decoration-success="validation_status == 'validated'"
+                       decoration-danger="validation_status == 'rejected'"
+                       invisible="validation_status == 'no'"
+                       column_invisible="context.get('default_move_type') not in ('in_invoice', 'in_receipt')"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_account_invoice_filter_payment_approval" model="ir.ui.view">
+        <field name="name">account.move.search.payment.approval</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+        <field name="arch" type="xml">
+            <filter name="late" position="after">
+                <separator/>
+                <filter name="payment_approval_mine" string="Pendientes de mi aprobación"
+                        domain="[('can_review', '=', True)]"/>
+                <filter name="payment_approval_pending" string="Pago en aprobación"
+                        domain="[('validation_status', 'in', ('waiting', 'pending'))]"/>
+                <filter name="payment_approval_rejected" string="Pago rechazado"
+                        domain="[('validation_status', '=', 'rejected')]"/>
+                <filter name="payment_blocked" string="Pago bloqueado"
+                        domain="[('payment_state', '=', 'blocked')]"/>
+            </filter>
+            <field name="partner_id" position="after">
+                <field name="payment_approver_id"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

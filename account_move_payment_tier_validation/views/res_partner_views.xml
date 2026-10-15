@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_partner_property_form_payment_approver" model="ir.ui.view">
+        <field name="name">res.partner.form.payment.approver</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="account.view_partner_property_form"/>
+        <field name="arch" type="xml">
+            <group name="purchase" position="inside">
+                <field name="payment_approver_id"
+                       options="{'no_create': True}"
+                       groups="account.group_account_invoice,account.group_account_readonly"/>
+            </group>
+        </field>
+    </record>
+
+</odoo>

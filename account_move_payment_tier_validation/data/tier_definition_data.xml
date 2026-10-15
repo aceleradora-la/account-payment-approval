@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- Regla por defecto: aprueba el aprobador de pagos del proveedor. Se puede
+         editar (dominio, comentario obligatorio, avisos) o desactivar. -->
+    <record id="tier_definition_vendor_bill_payment" model="tier.definition">
+        <field name="name">Aprobación del pago (aprobador del proveedor)</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="review_type">field</field>
+        <field name="reviewer_field_id" ref="field_account_move__payment_approver_id"/>
+        <field name="definition_domain">[("move_type", "in", ["in_invoice", "in_receipt"]), ("payment_approver_id", "!=", False)]</field>
+        <field name="company_id" eval="False"/>
+        <field name="notify_on_create" eval="True"/>
+    </record>
+
+</odoo>

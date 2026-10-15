@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_server_account_move_payment_approval_validate" model="ir.actions.server">
+        <field name="name">Aprobar pago</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_payment_approval_validate()</field>
+    </record>
+
+    <record id="action_server_tier_review_payment_approval_validate" model="ir.actions.server">
+        <field name="name">Aprobar pagos de facturas</field>
+        <field name="model_id" ref="base_tier_validation.model_tier_review"/>
+        <field name="binding_model_id" ref="base_tier_validation.model_tier_review"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_payment_approval_validate()</field>
+    </record>
+
+</odoo>
