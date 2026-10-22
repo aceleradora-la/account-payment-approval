@@ -5,7 +5,7 @@
     "name": "Facturas de proveedor - Aprobación de pago por niveles",
     "summary": "Bloquea el pago de las facturas de proveedor hasta que las apruebe "
     "el aprobador definido en el proveedor (tier validation).",
-    "version": "18.0.1.2.0",
+    "version": "18.0.1.3.0",
     "category": "Accounting",
     "website": "https://aceleradora.la",
     "author": "aceleradora.la",

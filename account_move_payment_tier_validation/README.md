@@ -46,12 +46,14 @@ Detalles:
   usuario por tipo de documento.
 - **Contabilidad > Proveedores > Facturas**: mismos filtros, más *Pago en aprobación*, *Pago
   rechazado* y *Pago bloqueado*, y las columnas *Aprobador del pago* y *Aprobación del pago*.
-- En instalaciones con Expedientes, también en **Expedientes > Mis aprobaciones > Validaciones**
-  (filtro *Facturas de proveedor*), que junta todas las aprobaciones de la fundación.
+- Con la app **Mis aprobaciones**
+  ([tier-validation-apps](https://github.com/aceleradora-la/tier-validation-apps)), en su bandeja,
+  junto con el resto de las aprobaciones.
 
-**Aprobación masiva:** seleccionar facturas (o validaciones) en la lista → *Acciones* →
-**Aprobar pago** / **Aprobar pagos de facturas**. Aprueba solo las que le tocan al usuario; las
-que exigen comentario se aprueban de a una desde la factura.
+**Aprobación masiva:** seleccionar facturas en la lista → *Acciones* → **Aprobar pago**. Aprueba
+solo las que le tocan al usuario; las que exigen comentario se aprueban de a una desde la factura.
+Desde la app Mis aprobaciones se usa su botón *Aprobar seleccionadas*, que sirve para cualquier
+tipo de documento.
 
 El aprobador necesita poder ver facturas (por ejemplo, *Contabilidad: solo lectura*); no necesita
 permiso de escritura.
